@@ -8,21 +8,23 @@
 int produced = 0;
 
 void* produce(void *arg) {
-    // Opening memory up
+    // Opens memory space up and creates a new memory object
     int memory = shm_open(NAME, O_CREAT | O_RDWR, 0700);
 
-    // Allocate appropriate amount of memory
+    // Allocate memory to SIZE
     if(ftruncate(memory, SIZE)){
         std::cout << "Producer: ftruncate failed\n";
         exit(-1);
     }
-    // Map sharedTable
+
+    // Will create a reference to the table in shared memory here
     struct table* sharedTable = (struct table*)mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, memory, 0);
     if (sharedTable == MAP_FAILED){
         std::cout << "Producer: Map Failed\n";
         exit(-1);
     }
 
+    // Initialize starting variables.
     sharedTable->in = 0;
     sharedTable->out = 0;
 
@@ -98,8 +100,6 @@ int main() {
         std::cout << "Producer: could not join thread\n";
         exit(-1);
     }
-    // Will exit the producer thread
-    //pthread_exit(NULL);
 
     std::cout << "-- Producer ends --\n";
     return 0;

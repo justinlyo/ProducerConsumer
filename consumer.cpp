@@ -8,16 +8,16 @@
 int consumed = 0;
 
 void* consume(void *arg) {
-    // Open memory up
+    // Opens memory space up and creates a new memory object
     int memory = shm_open(NAME, O_CREAT | O_RDWR, 0700);
 
-    // Allocate appropriate amount of memory
+    // Allocate memory to SIZE
     if(ftruncate(memory, SIZE)){
         std::cout << "Consumer: ftruncate failed\n";
         exit(-1);
     }
 
-    // Map sharedTable
+    // Will create a reference to the table in shared memory here
     struct table* sharedTable = (struct table*)mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, memory, 0);
     if (sharedTable == MAP_FAILED){
         std::cout << "Consumer: Map Failed\n";
