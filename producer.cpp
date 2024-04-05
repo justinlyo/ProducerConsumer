@@ -32,17 +32,20 @@ int main() {
 
     int count = 10;
     while(count >= 0) {
-        // Wait for empty semaphore to be ready (if not already)
+        // Wait for empty semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(empty);
 
-        // Wait for critical section semaphore to be ready (if not already)
+        // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(mutex);
         
         // Critical Section
-        std::cout << "Count: " << count << '\n';
+        std::cout << "Producer: " << count << '\n';
         count--;
         
+        // Signal the critical section that it is leaving. It will increment the semaphore.
         sem_post(mutex);
+
+        // Signal the full semaphore. It will increment the semaphore.
         sem_post(full);
 
     }
