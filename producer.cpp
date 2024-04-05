@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include "sharedMemory.hpp"
 
+int produced = 0;
+
 int main() {
     std::cout << "Producer begins\n";
     // Opening memory up
@@ -30,18 +32,30 @@ int main() {
     sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
-    int count = 10;
-    while(count >= 0) {
+
+    while(produced <= totalProduction) {
         // Wait for empty semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(empty);
 
         // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(mutex);
         
-        // Critical Section
-        std::cout << "Producer: " << count << '\n';
-        count--;
+        // Enter critical Section
+
+        // Generate random value
+        int randomValue = rand() % 100;
+
+        // Insert random value into shared memory
+        sharedTable->data[sharedTable->in] = randomValue;
+
+        // Output produced item
+        std::cout << "\tProduced: " << sharedTable->data[sharedTable->in] << '\n';
+        produced++; // Increment produced
+
+        // Increment in to the next spot
+        sharedTable->in = (sharedTable->in+1)%bufferSize;
         
+        // Leave critical section
         // Signal the critical section that it is leaving. It will increment the semaphore.
         sem_post(mutex);
 
