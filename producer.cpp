@@ -7,8 +7,7 @@
 
 int produced = 0;
 
-int main() {
-    std::cout << "Producer begins\n";
+void* produce(void *arg) {
     // Opening memory up
     int memory = shm_open(NAME, O_CREAT | O_RDWR, 0700);
 
@@ -66,9 +65,6 @@ int main() {
 
     }
 
-
-
-
     // Close semaphores
     sem_close(full);
     sem_close(empty);
@@ -83,6 +79,20 @@ int main() {
     munmap(sharedTable,SIZE);
     close(memory);
     shm_unlink(NAME);
+
+
+    return nullptr;
+}
+
+
+
+
+int main() {
+    std::cout << "Producer begins\n";
+    pthread_t producer;
+    
+
+
     std::cout << "Producer ends\n";
     return 0;
 }
