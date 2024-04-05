@@ -90,8 +90,17 @@ void* produce(void *arg) {
 int main() {
     std::cout << "Producer begins\n";
     pthread_t producer;
-    
+    if(pthread_create(&producer, NULL, produce, NULL)){
+        std::cout << "Producer: could not create thread\n";
+        exit(-1);
+    }
 
+    if(pthread_join(producer, NULL)){
+        std::cout << "Producer: could not join thread\n";
+        exit(-1);
+    }
+
+    pthread_exit(NULL);
 
     std::cout << "Producer ends\n";
     return 0;
