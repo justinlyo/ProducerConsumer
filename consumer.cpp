@@ -7,8 +7,7 @@
 
 int consumed = 0;
 
-int main() {
-    std::cout << "Consumer begins\n";
+void* consume(void *arg) {
     // Opening memory up
     int memory = shm_open(NAME, O_CREAT | O_RDWR, 0700);
 
@@ -37,14 +36,10 @@ int main() {
 
         // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(mutex);
-
         // -- Entering critical section --
-
         
         // Output consumed item
         std::cout << "\tConsumed: " << sharedTable->data[sharedTable->out] << '\n';
-
-        // Increment consumed
         consumed++;
 
         // Changes out to the next spot
@@ -73,6 +68,26 @@ int main() {
     munmap(sharedTable,SIZE);
     close(memory);
     shm_unlink(NAME);
+
+    return nullptr;
+}
+
+
+
+int main() {
+    std::cout << "Consumer begins\n";
+    pthread_t consumer;
+    if(pthread_create(&consumer, NULL, consume, NULL)){
+        std::cout << "Consumer: could not create thread\n";
+        exit(-1);
+    }
+
+    if(pthread_join(consumer, NULL)){
+        std::cout << "Consumer: could not join thread\n";
+        exit(-1);
+    }
+
+    pthread_exit(NULL);
     std::cout << "Consumer ends\n";
     return 0;
 }
