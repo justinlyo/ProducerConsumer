@@ -8,14 +8,15 @@
 int consumed = 0;
 
 void* consume(void *arg) {
-    // Opening memory up
+    // Open memory up
     int memory = shm_open(NAME, O_CREAT | O_RDWR, 0700);
 
-    // Allocate appropriate amount of space
+    // Allocate appropriate amount of memory
     if(ftruncate(memory, SIZE)){
         std::cout << "Consumer: ftruncate failed\n";
         exit(-1);
     }
+
     // Map sharedTable
     struct table* sharedTable = (struct table*)mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, memory, 0);
     if (sharedTable == MAP_FAILED){
@@ -29,8 +30,7 @@ void* consume(void *arg) {
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
 
-    int count = 10;
-    while(count >= 0) {
+    while(consumed < totalProduction) {
         // Wait for full semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(full);
 
@@ -75,19 +75,22 @@ void* consume(void *arg) {
 
 
 int main() {
-    std::cout << "Consumer begins\n";
+    //std::cout << "Consumer begins\n";
+    // Initialize consumer thread
     pthread_t consumer;
+    // Creates the consumer thread
     if(pthread_create(&consumer, NULL, consume, NULL)){
         std::cout << "Consumer: could not create thread\n";
         exit(-1);
     }
-
+    // Joins the consumer threads
     if(pthread_join(consumer, NULL)){
         std::cout << "Consumer: could not join thread\n";
         exit(-1);
     }
-
+    // Will exit the consumer thread
     pthread_exit(NULL);
-    std::cout << "Consumer ends\n";
+
+    //std::cout << "Consumer ends\n";
     return 0;
 }
