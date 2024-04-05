@@ -30,6 +30,26 @@ int main() {
     sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
+    int count = 10;
+    while(count >= 0) {
+        // Wait for empty semaphore to be ready (if not already)
+        sem_wait(empty);
+
+        // Wait for critical section semaphore to be ready (if not already)
+        sem_wait(mutex);
+        
+        // Critical Section
+        std::cout << "Count: " << count << '\n';
+        count--;
+        
+        sem_post(mutex);
+        sem_post(full);
+
+    }
+
+
+
+
     // Close semaphores
     sem_close(full);
     sem_close(empty);
