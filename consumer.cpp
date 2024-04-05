@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include "sharedMemory.hpp"
 
+int consumed = 0;
+
 int main() {
     std::cout << "Consumer begins\n";
     // Opening memory up
@@ -35,11 +37,19 @@ int main() {
 
         // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(mutex);
+        // Enter critical section
 
-        // Critical Section
-        std::cout << "Consumer: " << count << '\n';
-        count--;
+        
+        // Output consumed item
+        std::cout << "\tConsumed: " << sharedTable->data[sharedTable->out] << '\n';
 
+        // Increment consumed
+        consumed++;
+
+        // Changes out to the next spot
+        sharedTable->out = (sharedTable->out+1)%bufferSize;
+
+        // Leave critical section
         // Signal the critical section that it is leaving. It will increment the semaphore.
         sem_post(mutex);
 
