@@ -21,11 +21,13 @@ int main() {
         exit(-1);
     }
 
+    sharedTable->in = 0;
+    sharedTable->out = 0;
 
     // Close the shared memory object
     munmap(sharedTable,SIZE);
     close(memory);
     shm_unlink(NAME);
-
+    std::cout << "Producer ends\n";
     return 0;
 }
