@@ -39,7 +39,7 @@ void* consume(void *arg) {
         // -- Entering critical section --
         
         // Output consumed item
-        std::cout << "\tConsumed: " << sharedTable->data[sharedTable->out] << '\n';
+        std::cout << "\t   Consumed: " << sharedTable->data[sharedTable->out] << '\n';
         consumed++;
 
         // Changes out to the next spot
