@@ -11,7 +11,7 @@ void* produce(void *arg) {
     // Opening memory up
     int memory = shm_open(NAME, O_CREAT | O_RDWR, 0700);
 
-    // Allocate appropriate amount of space
+    // Allocate appropriate amount of memory
     if(ftruncate(memory, SIZE)){
         std::cout << "Producer: ftruncate failed\n";
         exit(-1);
@@ -31,8 +31,7 @@ void* produce(void *arg) {
     sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
-    int count = 0; // Testing purposes, remove later
-    while(produced <= totalProduction) {
+    while(produced < totalProduction) {
         // Wait for empty semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(empty);
 
@@ -42,9 +41,7 @@ void* produce(void *arg) {
         // Enter critical Section
 
         // Generate random value
-        //int randomValue = rand() % 100;
-        int randomValue = count;
-        count++;
+        int randomValue = rand() % 100;
 
         // Insert random value into shared memory
         sharedTable->data[sharedTable->in] = randomValue;
@@ -88,20 +85,22 @@ void* produce(void *arg) {
 
 
 int main() {
-    std::cout << "Producer begins\n";
+    //std::cout << "Producer begins\n";
+    // Initialize producer thread
     pthread_t producer;
+    // Creates the producer thread
     if(pthread_create(&producer, NULL, produce, NULL)){
         std::cout << "Producer: could not create thread\n";
         exit(-1);
     }
-
+    // Joins the producer thread
     if(pthread_join(producer, NULL)){
         std::cout << "Producer: could not join thread\n";
         exit(-1);
     }
-
+    // Will exit the producer thread
     pthread_exit(NULL);
 
-    std::cout << "Producer ends\n";
+    //std::cout << "Producer ends\n";
     return 0;
 }
