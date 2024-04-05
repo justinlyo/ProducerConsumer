@@ -30,16 +30,16 @@ void* consume(void *arg) {
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
 
-    while(consumed < totalProduction) {
+    while(consumed <= totalProduction) {
         // Wait for full semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(full);
 
         // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(mutex);
         // -- Entering critical section --
-        
+        sleep(rand()%2);
         // Output consumed item
-        std::cout << "\t   Consumed: " << sharedTable->data[sharedTable->out] << '\n';
+        std::cout << "      Consumed: " << sharedTable->data[sharedTable->out] << ", pos: " << sharedTable->out << '\n';
         consumed++;
 
         // Changes out to the next spot
@@ -75,7 +75,7 @@ void* consume(void *arg) {
 
 
 int main() {
-    //std::cout << "Consumer begins\n";
+    std::cout << "-- Consumer begins --\n";
     // Initialize consumer thread
     pthread_t consumer;
     // Creates the consumer thread
@@ -89,8 +89,8 @@ int main() {
         exit(-1);
     }
     // Will exit the consumer thread
-    pthread_exit(NULL);
+    //pthread_exit(NULL);
 
-    //std::cout << "Consumer ends\n";
+    std::cout << "--Consumer ends--\n";
     return 0;
 }

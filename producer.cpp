@@ -31,13 +31,13 @@ void* produce(void *arg) {
     sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
-    while(produced < totalProduction) {
+    while(produced <= totalProduction) {
         // Wait for empty semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(empty);
 
         // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(mutex);
-        
+        sleep(rand()%2);
         // Enter critical Section
 
         // Generate random value
@@ -47,7 +47,7 @@ void* produce(void *arg) {
         sharedTable->data[sharedTable->in] = randomValue;
 
         // Output produced item
-        std::cout << "\tProduced: " << sharedTable->data[sharedTable->in] << '\n';
+        std::cout << "   Produced: " << sharedTable->data[sharedTable->in] << ", pos: " << sharedTable->in << '\n';
         produced++;
 
         // Changes in to the next available spot
@@ -85,7 +85,7 @@ void* produce(void *arg) {
 
 
 int main() {
-    //std::cout << "Producer begins\n";
+    std::cout << "-- Producer begins --\n";
     // Initialize producer thread
     pthread_t producer;
     // Creates the producer thread
@@ -99,8 +99,8 @@ int main() {
         exit(-1);
     }
     // Will exit the producer thread
-    pthread_exit(NULL);
+    //pthread_exit(NULL);
 
-    //std::cout << "Producer ends\n";
+    std::cout << "-- Producer ends --\n";
     return 0;
 }
