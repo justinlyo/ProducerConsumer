@@ -31,7 +31,7 @@ void* produce(void *arg) {
     sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
-    while(produced <= totalProduction) {
+    while(produced < totalProduction) {
         // Wait for empty semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(empty);
 

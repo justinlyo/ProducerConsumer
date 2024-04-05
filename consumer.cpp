@@ -30,7 +30,7 @@ void* consume(void *arg) {
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
 
-    while(consumed <= totalProduction) {
+    while(consumed < totalProduction) {
         // Wait for full semaphore to be ready (if not already). It will decrement the semaphore.
         sem_wait(full);
 
