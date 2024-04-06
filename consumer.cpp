@@ -25,17 +25,17 @@ void* consume(void *arg) {
     }
 
     // Open semaphores
-    sem_t *full = sem_open("full", O_CREAT, 0700, 0); // Semaphore for when table is full (+ helps with entering critical section)
-    sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
+    sem_t *full = sem_open("full", O_CREAT, 0700, 0); // Semaphore for when table is full. If value > 0, then there is an item to consume
+    sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty. If value > 0, then there is room to produce
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
-
+    // While loop until total amount produced is consumed
     while(consumed < totalProduction) {
-        // Wait for full semaphore to be ready (if not already). It will decrement the semaphore.
-        sem_wait(full);
+        // Will wait for full semaphore to be ready (if not already). Will wait until there is an item to consume, so when full value > 0.
+        sem_wait(full); // Will decrement
 
-        // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
-        sem_wait(mutex);
+        // Wait for critical section semaphore to be ready (if not already). Will wait until there is no one in the critical section, so when value > 0.
+        sem_wait(mutex); // Will decrement
         // -- Entering critical section --
         sleep(rand()%2);
         // Output consumed item
@@ -46,11 +46,11 @@ void* consume(void *arg) {
         sharedTable->out = (sharedTable->out+1)%bufferSize;
 
         // -- Leaving critical section --
-        // Signal the critical section that it is leaving. It will increment the semaphore.
-        sem_post(mutex);
+        // Signal the critical section that it is leaving.
+        sem_post(mutex); // Will increment
 
-        // Signal the empty semaphore. It will increment the semaphore.
-        sem_post(empty);
+        // Signal the empty semaphore.
+        sem_post(empty); // Will increment
     }
 
 
