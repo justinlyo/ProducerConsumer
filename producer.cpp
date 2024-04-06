@@ -29,16 +29,17 @@ void* produce(void *arg) {
     sharedTable->out = 0;
 
     // Open semaphores
-    sem_t *full = sem_open("full", O_CREAT, 0700, 0); // Semaphore for when table is full (+ helps with entering critical section)
-    sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty (+ helps with entering crtiical section)
+    sem_t *full = sem_open("full", O_CREAT, 0700, 0); // Semaphore for when table is full. If value > 0, then there is an item to consume
+    sem_t *empty = sem_open("empty", O_CREAT, 0700, bufferSize); // Semaphore for when table is empty. If value > 0, then there is room to produce
     sem_t *mutex = sem_open("mutex", O_CREAT, 0700, 1); // Semaphore for critical section
 
+    // While loop until total amount produced is produced
     while(produced < totalProduction) {
-        // Wait for empty semaphore to be ready (if not already). It will decrement the semaphore.
-        sem_wait(empty);
+        // Wait for empty semaphore to be ready (if not already). Will wait until there is an empty space, so when empty > 0.
+        sem_wait(empty); // Will decrement
 
-        // Wait for critical section semaphore to be ready (if not already). It will decrement the semaphore.
-        sem_wait(mutex);
+        // Wait for critical section semaphore to be ready (if not already). Will wait until there is no one in the critical section, so when value > 0.
+        sem_wait(mutex); // Will decrement
         sleep(rand()%2);
         // Enter critical Section
 
@@ -55,12 +56,12 @@ void* produce(void *arg) {
         // Changes in to the next available spot
         sharedTable->in = (sharedTable->in+1)%bufferSize;
 
-        // Leave critical section
-        // Signal the critical section that it is leaving. It will increment the semaphore.
-        sem_post(mutex);
+        // -- Leaving critical section --
+        // Signal the critical section that it is leaving. 
+        sem_post(mutex); // Will increment
 
-        // Signal the full semaphore. It will increment the semaphore.
-        sem_post(full);
+        // Signal the full semaphore.
+        sem_post(full); // Will increment
 
     }
 
