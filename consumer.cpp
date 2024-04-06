@@ -88,8 +88,6 @@ int main() {
         std::cout << "Consumer: could not join thread\n";
         exit(-1);
     }
-    // Will exit the consumer thread
-    //pthread_exit(NULL);
 
     std::cout << "--Consumer ends--\n";
     return 0;
