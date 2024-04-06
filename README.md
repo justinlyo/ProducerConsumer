@@ -57,7 +57,7 @@ The following is an example of what the output could look like; however, it shou
 --Consumer ends--
 ```
 # Video Walkthrough
-add video
+[![Watch the video](https://img.youtube.com/vi/5mg8ot39tVo/maxresdefault.jpg)](https://youtu.be/5mg8ot39tVo) 
 
 # Explanation
 The assignment was to have a producer produce items for the consumer to consume. The producer and consumer have to be use semaphores and have mutual exclusion, as well as use threads.
